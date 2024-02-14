@@ -16,7 +16,7 @@ Byte Memory_Fetch(struct CPU* cpu, struct Mem* mem, u32* cycles)
 
 Byte Get_Memory(struct Mem* mem, u32 index)
 {
-	if (index >= MAX_MEM)
+	if (index < 0 || index >= MAX_MEM)
 	{
 		(void)fprintf(stderr, "Invalid address %d; terminating execution...\n", index);
 		exit(EXIT_FAILURE);
@@ -47,10 +47,12 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 
 	*cycles_remaining = cycles;
 
-	while (cycles > 0)
+	while (*cycles_remaining > 0)
 	{
-		instruction = Memory_Fetch(cpu, mem, &cycles);
-		(void)printf("Fetched %d\n", instruction);
+		instruction = Memory_Fetch(cpu, mem, cycles_remaining);
+
+		// DEBUG
+		(void)printf("Fetched %d @%d\n", instruction, *cycles_remaining + 1);
 	}
 
 	free(cycles_remaining);
