@@ -115,23 +115,64 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 				(void)printf("Executed LDA Zero Page\n");
 			} break;
 			case INSTRUCTION_LDA_ZEROPAGEX:
-				break;
+			{
+				Byte zero_page_address =
+					(Memory_Fetch_Byte(cpu,
+							  mem,
+							  cycles_remaining)
+					+ cpu->X) % sizeof(mem->Data);
+				*cycles_remaining -= 1;	// Fetch X Register
+				cpu->A = Memory_Read_Byte(cpu,
+						          mem,
+							  cycles_remaining,
+							  zero_page_address);
+
+				lda_set_flags(cpu);
+
+				// DEBUG
+				(void)printf("Executed LDA Zero Page,X\n");
+			} break;
 			case INSTRUCTION_LDA_ABSOLUTE:
-				break;
+			{
+				lda_set_flags(cpu);
+
+				// DEBUG
+				(void)printf("Executed LDA Absolute");
+			} break;
 			case INSTRUCTION_LDA_ABSOLUTEX:
-				break;
+			{
+				lda_set_flags(cpu);
+
+				// DEBUG
+				(void)printf("Executed LDA Absolute,X");
+			} break;
 			case INSTRUCTION_LDA_ABSOLUTEY:
-				break;
+			{
+				lda_set_flags(cpu);
+
+				// DEBUG
+				(void)printf("Executed LDA Absolute,Y");
+			} break;
 			case INSTRUCTION_LDA_INDIRECTX:
-				break;
+			{
+				lda_set_flags(cpu);
+
+				// DEBUG
+				(void)printf("Executed LDA Indirect,X");
+			} break;
 			case INSTRUCTION_LDA_INDIRECTY:
-				break;
+			{
+				lda_set_flags(cpu);
+
+				// DEBUG
+				(void)printf("Executed LDA Indirect,Y");
+			} break;
 			default:
 			{
 				(void)fprintf(stderr,
 					      "Illegal instruction '%d'@%d\n",
 					      instruction,
-					      cpu->PC);
+					      cpu->PC - 1);
 			} break;
 		}
 

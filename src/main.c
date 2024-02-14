@@ -8,8 +8,9 @@ int main(int argc, char** argv, char** envp)
 
 	CPU_Reset(&cpu, &mem);
 
-	err += Set_Memory(&mem, 0xFFFC, INSTRUCTION_LDA_ZEROPAGE);
-	err += Set_Memory(&mem, 0xFFFD, 0x0042);
+	cpu.X = 0x0002;
+	err += Set_Memory(&mem, 0xFFFC, INSTRUCTION_LDA_ZEROPAGEX);
+	err += Set_Memory(&mem, 0xFFFD, 0x0040);
 	err += Set_Memory(&mem, 0x0042, 0x0084);
 
 	if (err != 0)
@@ -18,7 +19,7 @@ int main(int argc, char** argv, char** envp)
 		exit(EXIT_FAILURE);
 	}
 
-	CPU_Execute(&cpu, &mem, 3);
+	CPU_Execute(&cpu, &mem, 4);
 
 	(void)printf("Accumulator: %d\n", cpu.A);
 
