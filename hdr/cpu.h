@@ -24,7 +24,7 @@ struct CPU
 {
 
 	Word PC;	// Programme Counter
-	Word SP;	// Stack Pointer
+	Byte SP;	// Stack Pointer
 	
 	// Registers
 	Byte A;		// Accumulator
@@ -44,13 +44,26 @@ struct CPU
 
 // Memory functions
 void Memory_Initialise(struct Mem* mem);
-Byte Memory_Fetch(struct CPU*, struct Mem*, u32*);
+Byte Memory_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address);
+Byte Memory_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles);
 
-Byte Get_Memory(struct Mem*, u32);
+Byte Get_Memory(struct Mem* mem, u32 index);
+int Set_Memory(struct Mem* mem, u32 index, u32 value);
 
 // CPU functions
-void CPU_Reset(struct CPU*, struct Mem*);
-void CPU_Execute(struct CPU*, struct Mem*, u32);
+void CPU_Reset(struct CPU* cpu, struct Mem* mem);
+void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles);
+
+// Opcodes
+// Load Accumulator
+#define INSTRUCTION_LDA_IMMEDIATE 0xA9	// Immediate
+#define INSTRUCTION_LDA_ZEROPAGE  0xA5	// Zero Page
+#define INSTRUCTION_LDA_ZEROPAGEX 0xB5	// Zero Page,X
+#define INSTRUCTION_LDA_ABSOLUTE  0xAD	// Absolute
+#define INSTRUCTION_LDA_ABSOLUTEX 0xBD	// Absolute,X
+#define INSTRUCTION_LDA_ABSOLUTEY 0xB9	// Absolute,Y
+#define INSTRUCTION_LDA_INDIRECTX 0xA1	// Indirect,X
+#define INSTRUCTION_LDA_INDIRECTY 0xB1	// Indirect,Y
 
 #endif // !CPU_h
 
