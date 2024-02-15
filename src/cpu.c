@@ -1,6 +1,9 @@
 #include <stdarg.h>
-#include <stdio.h>
+#include <assert.h>
 #include "../hdr/cpu.h"
+
+static int endianness = BIG;
+static int err = 0;
 
 void die(char* format, ...)
 {
@@ -13,18 +16,23 @@ void die(char* format, ...)
 }
 
 // Returns 1 if the system is little endian, 0 otherwise
-int is_little_endian()
+void MOS_6502_set_endianness(int arg)
 {
-	int i = 1;
-	if (*((char *)&i) == 1)
-		return 1;
-	return 0;
+	if (arg == AUTO)
+	{
+		int i = 1;
+		if (*((char *)&i) == 1)
+			endianness = LITTLE;
+	}
+
+	else
+		endianness = arg;
 }
 
-void Memory_Initialise(struct Mem* mem)
+void Mem_Initialise(struct Mem* mem)
 	{ (void)memset(mem, 0, sizeof(mem->Data)); }
 
-Byte Memory_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
+Byte Mem_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
 {
 	Byte data = Get_Memory(mem, address);
 	*cycles -= 1;
@@ -32,22 +40,22 @@ Byte Memory_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte addres
 	return data;
 }
 
-Byte Memory_Read_Word(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
+Byte Mem_Read_Word(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
 {
-	Word data = Memory_Read_Byte(cpu, mem, cycles, address);
-	if (is_little_endian())
-		data |= (Memory_Read_Byte(cpu, mem, cycles, address + 1)
+	Word data = Mem_Read_Byte(cpu, mem, cycles, address);
+	if (endianness == LITTLE)
+		data |= (Mem_Read_Byte(cpu, mem, cycles, address + 1)
 				<< sizeof(Byte) * 8);
 	else
 	{
 		data <<= sizeof(Byte) * 8;
-		data |= Memory_Read_Byte(cpu, mem, cycles, address + 1);
+		data |= Mem_Read_Byte(cpu, mem, cycles, address + 1);
 	}
 
 	return data;
 }
 
-Byte Memory_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles)
+Byte Mem_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles)
 {
 	Byte data = Get_Memory(mem, cpu->PC);
 	cpu->PC++;
@@ -56,31 +64,31 @@ Byte Memory_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles)
 	return data;
 }
 
-Word Memory_Fetch_Word(struct CPU *cpu, struct Mem *mem, u32 *cycles)
+Word Mem_Fetch_Word(struct CPU *cpu, struct Mem *mem, u32 *cycles)
 {
-	Word data = Memory_Fetch_Byte(cpu, mem, cycles);
-	if (is_little_endian())
-	     data |= (Memory_Fetch_Byte(cpu, mem, cycles) << sizeof(Byte) * 8);
+	Word data = Mem_Fetch_Byte(cpu, mem, cycles);
+	if (endianness == LITTLE)
+	     data |= (Mem_Fetch_Byte(cpu, mem, cycles) << sizeof(Byte) * 8);
 	else
 	{
 		data <<= sizeof(Byte) * 8;
-		data |= (Memory_Fetch_Byte(cpu, mem, cycles));
+		data |= (Mem_Fetch_Byte(cpu, mem, cycles));
 	}
 
 	return data;
 }
 
-int validate_index(u32 index)
+int validate_index(Word index)
 	{ return (index >= 0 && index < MAX_MEM); }
 
-Byte Get_Memory(struct Mem* mem, u32 index)
+Byte Get_Memory(struct Mem* mem, Word index)
 {
 	if (!validate_index(index))
 		die("Invalid address '%d'", index);
 	return mem->Data[index];
 }
 
-int Set_Memory(struct Mem* mem, u32 index, u32 data)
+int Set_Memory(struct Mem* mem, Word index, u32 data)
 {
 	if (!validate_index(index))
 		return -1;
@@ -96,7 +104,7 @@ void CPU_Reset(struct CPU* cpu, struct Mem* mem)
 	cpu->SP = 0x00FF;	// Set Stack Pointer
 	cpu->I  = 1;		// Set Interrupt Disable
 	cpu->D  = 0;		// Clear Decimal Flag
-	Memory_Initialise(mem);
+	Mem_Initialise(mem);
 }
 
 void lda_set_flags(struct CPU* cpu)
@@ -110,9 +118,6 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 	Byte instruction;
 	u32* cycles_remaining = malloc(sizeof(u32));
 
-	(void)printf("The word is %d.\n", Memory_Fetch_Word(cpu, mem, cycles_remaining));
-	return;
-
 	if (cycles_remaining == NULL)
 	{
 		(void)perror("Memory allocation failed");
@@ -124,23 +129,29 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 	while (*cycles_remaining > 0)
 	{
 		//DEBUG
-		(void)printf("Reading %d...\n", cpu->PC);
+		(void)printf("Reading %d. Cycles remaining: %d\n", cpu->PC, *cycles_remaining);
 
-		instruction = Memory_Fetch_Byte(cpu, mem, cycles_remaining);
+		instruction = Mem_Fetch_Byte(cpu, mem, cycles_remaining);
 
 		switch(instruction)
 		{
 			//JMP
 			case INSTRUCTION_JMP_ABSOLUTE:
 			{
-				//...
+				assert(*cycles_remaining >= 3-1);
+
+				Word jmp_addr = Mem_Fetch_Word(cpu, mem, cycles_remaining);
+				if (validate_index(jmp_addr))
+					cpu->PC = jmp_addr;
+				else
+					die("Illegal Jump Address '%d'", jmp_addr);
 				
 				// DEBUG
-				(void)printf("Executed JMP Absolute\n");
+				(void)printf("Executed JMP Absolute to %d\n", jmp_addr);
 			} break;
 			case INSTRUCTION_JMP_INDIRECT:
 			{
-				//...
+				assert(*cycles_remaining >= 5-1);
 				
 				// DEBUG
 				(void)printf("Executed JMP Indirect\n");
@@ -150,7 +161,7 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 			// JSR
 			case INSTRUCTION_JSR_ABSOLUTE:
 			{
-				//...
+				assert(*cycles_remaining >= 6-1);
 				
 				// DEBUG
 				(void)printf("Executed JSR Absolute\n");
@@ -160,8 +171,10 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 			// LDA
 			case INSTRUCTION_LDA_IMMEDIATE:
 			{
+				assert(*cycles_remaining >= 2-1);
+
 				cpu->A = 
-					Memory_Fetch_Byte(cpu, 
+					Mem_Fetch_Byte(cpu, 
 						          mem,
 						          cycles_remaining);
 				lda_set_flags(cpu);
@@ -171,11 +184,13 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 			} break;
 			case INSTRUCTION_LDA_ZEROPAGE:
 			{
+				assert(*cycles_remaining >= 3-1);
+
 				Byte zero_page_address = 
-					Memory_Fetch_Byte(cpu, 
+					Mem_Fetch_Byte(cpu, 
 							  mem, 
 							  cycles_remaining);
-				cpu->A = Memory_Read_Byte(cpu,
+				cpu->A = Mem_Read_Byte(cpu,
 						          mem,
 						          cycles_remaining,
 						          zero_page_address);
@@ -186,13 +201,15 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 			} break;
 			case INSTRUCTION_LDA_ZEROPAGEX:
 			{
+				assert(*cycles_remaining >= 4-1);
+
 				Byte zero_page_address =
-					(Memory_Fetch_Byte(cpu,
+					(Mem_Fetch_Byte(cpu,
 							  mem,
 							  cycles_remaining)
 					+ cpu->X) % sizeof(mem->Data);
 				*cycles_remaining -= 1;	// Fetch X Register
-				cpu->A = Memory_Read_Byte(cpu,
+				cpu->A = Mem_Read_Byte(cpu,
 						          mem,
 							  cycles_remaining,
 							  zero_page_address);
@@ -204,6 +221,8 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 			} break;
 			case INSTRUCTION_LDA_ABSOLUTE:
 			{
+				assert(*cycles_remaining >= 4-1);
+				//...
 				lda_set_flags(cpu);
 
 				// DEBUG
@@ -242,7 +261,10 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 				(void)fprintf(stderr,
 					      "Illegal instruction '%d'@%d\n",
 					      instruction,
-					      cpu->PC - 1);
+					      cpu->PC);
+				err++;
+				if (err >= MAX_ERRORS)
+					die("Critical Failure Detected! Aborting...\n");
 			} break;
 		}
 
@@ -250,4 +272,3 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 
 	free(cycles_remaining);
 }
-

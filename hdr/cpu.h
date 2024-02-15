@@ -5,6 +5,14 @@
 #include <stdio.h>
 #include <string.h>
 
+enum Endianness
+{
+	BIG,
+	LITTLE,
+	AUTO
+};
+
+
 typedef unsigned char  Byte;	// 8 Bits
 typedef unsigned short Word;	// 16 Bits
 typedef unsigned int   u32;
@@ -20,6 +28,8 @@ struct Mem
 
 
 // CPU
+#define MAX_ERRORS 10
+
 struct CPU
 {
 
@@ -42,13 +52,21 @@ struct CPU
 };
 
 
-// Memory functions
-void Memory_Initialise(struct Mem* mem);
-Byte Memory_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address);
-Byte Memory_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles);
+/*
+ * @brief If arg is "AUTO" this will automatically determine the endianness of the
+ * current system. Else arg is used to specify "BIG" or "LITTLE".
+ */ 
+void MOS_6502_set_endianness(int arg);
 
-Byte Get_Memory(struct Mem* mem, u32 index);
-int Set_Memory(struct Mem* mem, u32 index, u32 value);
+
+// Memory functions
+void Mem_Initialise(struct Mem* mem);
+Byte Mem_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address);
+Byte Mem_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles);
+
+Byte Get_Memory(struct Mem* mem, Word index);
+int Set_Memory(struct Mem* mem, Word index, u32 value);
+
 
 // CPU functions
 void CPU_Reset(struct CPU* cpu, struct Mem* mem);
