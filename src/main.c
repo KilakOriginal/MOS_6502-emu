@@ -1,3 +1,10 @@
+/*
+ * Author:··········Malik Abdoul Hamidou
+ * Date Created:····2024-02-14
+ * Date Changed:····2024-02-15
+ * Description:·····A small sample programme, demonstrating the emulator
+ * License:·········GPL3 (See LICENCE)
+*/
 #include "../hdr/cpu.h"
 
 int main(int argc, char** argv, char** envp)
@@ -30,4 +37,3 @@ int main(int argc, char** argv, char** envp)
 
 	return 0;
 }
-

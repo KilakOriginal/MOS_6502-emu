@@ -71,6 +71,7 @@ int Set_Memory(struct Mem* mem, Word index, Byte data);
 // CPU functions
 void CPU_Reset(struct CPU* cpu, struct Mem* mem);
 void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles);
+Byte CPU_Fetch_Register(struct CPU* cpu, Byte register, u32* cycles);
 
 // Opcodes
 // Jump

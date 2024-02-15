@@ -64,7 +64,7 @@ Byte Mem_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles)
 	return data;
 }
 
-Word Mem_Fetch_Word(struct CPU *cpu, struct Mem *mem, u32 *cycles)
+Word Mem_Fetch_Word(struct CPU* cpu, struct Mem* mem, u32* cycles)
 {
 	Word data = Mem_Fetch_Byte(cpu, mem, cycles);
 	if (endianness == LITTLE)
@@ -76,6 +76,12 @@ Word Mem_Fetch_Word(struct CPU *cpu, struct Mem *mem, u32 *cycles)
 	}
 
 	return data;
+}
+
+Byte CPU_Fetch_Register(struct CPU* cpu, Byte reg, u32* cycles)
+{
+	*cycles -= 1;
+	return reg;
 }
 
 int validate_index(Word index)
@@ -203,12 +209,14 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 			{
 				assert(*cycles_remaining >= 4-1);
 
+				Byte offset = CPU_Fetch_Register(cpu,
+					                             cpu->X,
+												 cycles_remaining);
 				Byte zero_page_address =
 					(Mem_Fetch_Byte(cpu,
 							  mem,
 							  cycles_remaining)
-					+ cpu->X) % sizeof(mem->Data);
-				*cycles_remaining -= 1;	// Fetch X Register
+					+ offset) % sizeof(mem->Data);
 				cpu->A = Mem_Read_Byte(cpu,
 						          mem,
 							  cycles_remaining,
