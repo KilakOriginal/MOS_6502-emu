@@ -15,7 +15,15 @@ void die(char* format, ...)
 	exit(EXIT_FAILURE);
 }
 
-// Returns 1 if the system is little endian, 0 otherwise
+/**
+ * @brief Set the endianness to correctly represent the 6502's memory
+ * 
+ * The MOS 6502 uses little endian numbers so if the system running this code
+ * is big endian, the LSB and MSB need to be reversed.
+ * Invalid arguments will result in termination.
+ * 
+ * @param arg one of BIG=0, LITTLE=1, AUTO=2; sets endianness to the system's
+*/
 void MOS_6502_set_endianness(int arg)
 {
 	if (arg == AUTO)
@@ -25,8 +33,11 @@ void MOS_6502_set_endianness(int arg)
 			endianness = LITTLE;
 	}
 
-	else
+	else if (arg == BIG || arg == LITTLE)
 		endianness = arg;
+
+	else
+		die("Invalid endianness; must be one of BIG=0, LITTLE=1, AUTO=2");
 }
 
 void Mem_Initialise(struct Mem* mem)
@@ -119,6 +130,19 @@ void lda_set_flags(struct CPU* cpu)
 	cpu->N = (cpu->A & 64) != 0; //7th bit set
 }
 
+/**
+ * @brief This function will emulate a MOS 6502 on virtual/simulated memory.
+ * 
+ * The individual instructions are fetched from memory and then interpreted.
+ * If there are't enough cycles left to execute an instruction, the cpu will
+ * crash.
+ * TODO: Think: Perhaps the CPU should just stop mid execution?
+ * Invalid memory addresses will result in termination, overflows are wrapped.
+ * 
+ * @param cpu the cpu you want to emulate
+ * @param mem the memory on which the cpu will run
+ * @param cycles the number of cycles for which you allow the cpu to run
+*/
 void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 {
 	Byte instruction;
