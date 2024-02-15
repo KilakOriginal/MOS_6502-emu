@@ -88,7 +88,7 @@ Byte Get_Memory(struct Mem* mem, Word index)
 	return mem->Data[index];
 }
 
-int Set_Memory(struct Mem* mem, Word index, u32 data)
+int Set_Memory(struct Mem* mem, Word index, Byte data)
 {
 	if (!validate_index(index))
 		return -1;

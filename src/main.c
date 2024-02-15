@@ -12,12 +12,11 @@ int main(int argc, char** argv, char** envp)
 
 	cpu.X = 0x0002;
 	err += Set_Memory(&mem, 0xFFFC, INSTRUCTION_JMP_ABSOLUTE);
-	err += Set_Memory(&mem, 0xFFFD, 0x00FC);
-	err += Set_Memory(&mem, 0xFFFE, 0x00EF);
+	err += Set_Memory(&mem, 0xFFFD, 0xFC);
+	err += Set_Memory(&mem, 0xFFFE, 0xEF);
 	err += Set_Memory(&mem, 0xEFFC, INSTRUCTION_LDA_ZEROPAGEX);
-	err += Set_Memory(&mem, 0xEFFD, 0x0040);
-	err += Set_Memory(&mem, 0x0042, 0x0084);
-	err += Set_Memory(&mem, 0x0000, 0xFF00);
+	err += Set_Memory(&mem, 0xEFFD, 0x40);
+	err += Set_Memory(&mem, 0x0042, 0x84);
 
 	if (err != 0)
 	{

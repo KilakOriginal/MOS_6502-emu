@@ -65,7 +65,7 @@ Byte Mem_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address);
 Byte Mem_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles);
 
 Byte Get_Memory(struct Mem* mem, Word index);
-int Set_Memory(struct Mem* mem, Word index, u32 value);
+int Set_Memory(struct Mem* mem, Word index, Byte data);
 
 
 // CPU functions
