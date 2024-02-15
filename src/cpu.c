@@ -1,4 +1,5 @@
 #include <stdarg.h>
+#include <stdio.h>
 #include "../hdr/cpu.h"
 
 void die(char* format, ...)
@@ -9,6 +10,15 @@ void die(char* format, ...)
 	va_end(argptr);
 
 	exit(EXIT_FAILURE);
+}
+
+// Returns 1 if the system is little endian, 0 otherwise
+int is_little_endian()
+{
+	int i = 1;
+	if (*((char *)&i) == 1)
+		return 1;
+	return 0;
 }
 
 void Memory_Initialise(struct Mem* mem)
@@ -22,11 +32,40 @@ Byte Memory_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte addres
 	return data;
 }
 
+Byte Memory_Read_Word(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
+{
+	Word data = Memory_Read_Byte(cpu, mem, cycles, address);
+	if (is_little_endian())
+		data |= (Memory_Read_Byte(cpu, mem, cycles, address + 1)
+				<< sizeof(Byte) * 8);
+	else
+	{
+		data <<= sizeof(Byte) * 8;
+		data |= Memory_Read_Byte(cpu, mem, cycles, address + 1);
+	}
+
+	return data;
+}
+
 Byte Memory_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles)
 {
 	Byte data = Get_Memory(mem, cpu->PC);
 	cpu->PC++;
 	*cycles -= 1;
+
+	return data;
+}
+
+Word Memory_Fetch_Word(struct CPU *cpu, struct Mem *mem, u32 *cycles)
+{
+	Word data = Memory_Fetch_Byte(cpu, mem, cycles);
+	if (is_little_endian())
+	     data |= (Memory_Fetch_Byte(cpu, mem, cycles) << sizeof(Byte) * 8);
+	else
+	{
+		data <<= sizeof(Byte) * 8;
+		data |= (Memory_Fetch_Byte(cpu, mem, cycles));
+	}
 
 	return data;
 }
@@ -71,6 +110,9 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 	Byte instruction;
 	u32* cycles_remaining = malloc(sizeof(u32));
 
+	(void)printf("The word is %d.\n", Memory_Fetch_Word(cpu, mem, cycles_remaining));
+	return;
+
 	if (cycles_remaining == NULL)
 	{
 		(void)perror("Memory allocation failed");
@@ -88,6 +130,34 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 
 		switch(instruction)
 		{
+			//JMP
+			case INSTRUCTION_JMP_ABSOLUTE:
+			{
+				//...
+				
+				// DEBUG
+				(void)printf("Executed JMP Absolute\n");
+			} break;
+			case INSTRUCTION_JMP_INDIRECT:
+			{
+				//...
+				
+				// DEBUG
+				(void)printf("Executed JMP Indirect\n");
+			} break;
+
+
+			// JSR
+			case INSTRUCTION_JSR_ABSOLUTE:
+			{
+				//...
+				
+				// DEBUG
+				(void)printf("Executed JSR Absolute\n");
+			} break;
+
+
+			// LDA
 			case INSTRUCTION_LDA_IMMEDIATE:
 			{
 				cpu->A = 

@@ -55,6 +55,13 @@ void CPU_Reset(struct CPU* cpu, struct Mem* mem);
 void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles);
 
 // Opcodes
+// Jump
+#define INSTRUCTION_JMP_ABSOLUTE  0x4C	// Absolute
+#define INSTRUCTION_JMP_INDIRECT  0x6C	// Indirect
+
+// Jump To Subroutine
+#define INSTRUCTION_JSR_ABSOLUTE  0x20	// Absolute
+
 // Load Accumulator
 #define INSTRUCTION_LDA_IMMEDIATE 0xA9	// Immediate
 #define INSTRUCTION_LDA_ZEROPAGE  0xA5	// Zero Page

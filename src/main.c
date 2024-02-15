@@ -12,6 +12,7 @@ int main(int argc, char** argv, char** envp)
 	err += Set_Memory(&mem, 0xFFFC, INSTRUCTION_LDA_ZEROPAGEX);
 	err += Set_Memory(&mem, 0xFFFD, 0x0040);
 	err += Set_Memory(&mem, 0x0042, 0x0084);
+	err += Set_Memory(&mem, 0x0000, 0xFF00);
 
 	if (err != 0)
 	{
