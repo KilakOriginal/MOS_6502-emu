@@ -40,6 +40,9 @@ void MOS_6502_set_endianness(int arg)
 		die("Invalid endianness; must be one of BIG=0, LITTLE=1, AUTO=2");
 }
 
+Byte is_sign_set(Byte input)
+	{ return (input & 0x80) >> 7; }
+
 void Mem_Initialise(struct Mem* mem)
 	{ (void)memset(mem, 0, sizeof(mem->Data)); }
 
@@ -55,11 +58,10 @@ Byte Mem_Read_Word(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
 {
 	Word data = Mem_Read_Byte(cpu, mem, cycles, address);
 	if (endianness == LITTLE)
-		data |= (Mem_Read_Byte(cpu, mem, cycles, address + 1)
-				<< sizeof(Byte) * 8);
+		data |= (Mem_Read_Byte(cpu, mem, cycles, address + 1) << 0x08);
 	else
 	{
-		data <<= sizeof(Byte) * 8;
+		data <<= 0x08;
 		data |= Mem_Read_Byte(cpu, mem, cycles, address + 1);
 	}
 
@@ -79,10 +81,10 @@ Word Mem_Fetch_Word(struct CPU* cpu, struct Mem* mem, u32* cycles)
 {
 	Word data = Mem_Fetch_Byte(cpu, mem, cycles);
 	if (endianness == LITTLE)
-	     data |= (Mem_Fetch_Byte(cpu, mem, cycles) << sizeof(Byte) * 8);
+	     data |= (Mem_Fetch_Byte(cpu, mem, cycles) << 0x08);
 	else
 	{
-		data <<= sizeof(Byte) * 8;
+		data <<= 0x08;
 		data |= (Mem_Fetch_Byte(cpu, mem, cycles));
 	}
 
@@ -124,11 +126,26 @@ void CPU_Reset(struct CPU* cpu, struct Mem* mem)
 	Mem_Initialise(mem);
 }
 
+// Flags
+void adc_set_flags(struct CPU* cpu, Byte input, Word sum)
+{
+	cpu->C = (sum & 0xFF00) != 0;
+	cpu->Z = (cpu->A == 0);
+	cpu->V = (cpu->N & is_sign_set(input) & ~is_sign_set(cpu->A)) // N+N=P
+		  | ~(cpu->N | is_sign_set(input) | ~is_sign_set(cpu->A)); // P+P=N
+	cpu->N = is_sign_set(cpu->A);
+}
+
 void lda_set_flags(struct CPU* cpu)
 {
 	cpu->Z = (cpu->A == 0);
-	cpu->N = (cpu->A & 64) != 0; //7th bit set
+	cpu->N = is_sign_set(cpu->A);
 }
+
+// ...
+
+// Addressing Modes
+// ...
 
 /**
  * @brief This function will emulate a MOS 6502 on virtual/simulated memory.
@@ -165,6 +182,20 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 
 		switch(instruction)
 		{
+			// ADC
+			case INSTRUCTION_ADC_IMMEDIATE:
+			{
+				assert(*cycles_remaining >= 2-1);
+
+				Byte input = Mem_Fetch_Byte(cpu, mem, cycles_remaining);
+				Word sum = (cpu->A + input + cpu->C);
+
+				cpu->A = sum & 0xFF;
+
+				adc_set_flags(cpu, input, sum);
+			} break;
+
+
 			//JMP
 			case INSTRUCTION_JMP_ABSOLUTE:
 			{
