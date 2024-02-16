@@ -22,7 +22,7 @@ void die(char* format, ...)
  * is big endian, the LSB and MSB need to be reversed.
  * Invalid arguments will result in termination.
  * 
- * @param arg one of BIG=0, LITTLE=1, AUTO=2; sets endianness to the system's
+ * @param arg one of BIG=0, LITTLE=1, AUTO=2; sets endianness to the system's00000000
 */
 void MOS_6502_set_endianness(int arg)
 {
@@ -41,7 +41,7 @@ void MOS_6502_set_endianness(int arg)
 }
 
 Byte is_sign_set(Byte input)
-	{ return (input & 0x80) >> 7; }
+	{ return input >> 7; }
 
 void Mem_Initialise(struct Mem* mem)
 	{ (void)memset(mem, 0, sizeof(mem->Data)); }
@@ -98,7 +98,10 @@ Byte CPU_Fetch_Register(struct CPU* cpu, Byte reg, u32* cycles)
 }
 
 int validate_index(Word index)
-	{ return (index >= 0 && index < MAX_MEM); }
+	{ 
+		assert(MAX_MEM >= sizeof(Word));
+		return (index >= 0);
+	}
 
 Byte Get_Memory(struct Mem* mem, Word index)
 {
@@ -131,8 +134,7 @@ void adc_set_flags(struct CPU* cpu, Byte input, Word sum)
 {
 	cpu->C = (sum & 0xFF00) != 0;
 	cpu->Z = (cpu->A == 0);
-	cpu->V = (cpu->N & is_sign_set(input) & ~is_sign_set(cpu->A)) // N+N=P
-		  | ~(cpu->N | is_sign_set(input) | ~is_sign_set(cpu->A)); // P+P=N
+	cpu->V = (~((cpu->N << 7) ^ input) & (input ^ sum)) >> 7;
 	cpu->N = is_sign_set(cpu->A);
 }
 
@@ -236,8 +238,8 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 
 				cpu->A = 
 					Mem_Fetch_Byte(cpu, 
-						          mem,
-						          cycles_remaining);
+						       mem,
+						       cycles_remaining);
 				lda_set_flags(cpu);
 
 				// DEBUG
@@ -249,12 +251,12 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 
 				Byte zero_page_address = 
 					Mem_Fetch_Byte(cpu, 
-							  mem, 
-							  cycles_remaining);
+						       mem, 
+						       cycles_remaining);
 				cpu->A = Mem_Read_Byte(cpu,
-						          mem,
-						          cycles_remaining,
-						          zero_page_address);
+						       mem,
+						       cycles_remaining,
+						       zero_page_address);
 				lda_set_flags(cpu);
 
 				// DEBUG
@@ -265,17 +267,17 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 				assert(*cycles_remaining >= 4-1);
 
 				Byte offset = CPU_Fetch_Register(cpu,
-					                             cpu->X,
-												 cycles_remaining);
+					                         cpu->X,
+								 cycles_remaining);
 				Byte zero_page_address =
 					(Mem_Fetch_Byte(cpu,
-							  mem,
-							  cycles_remaining)
+							mem,
+							cycles_remaining)
 					+ offset) % sizeof(mem->Data);
 				cpu->A = Mem_Read_Byte(cpu,
-						          mem,
-							  cycles_remaining,
-							  zero_page_address);
+						       mem,
+						       cycles_remaining,
+						       zero_page_address);
 
 				lda_set_flags(cpu);
 
@@ -335,3 +337,4 @@ void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
 
 	free(cycles_remaining);
 }
+

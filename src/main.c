@@ -23,9 +23,9 @@ int main(int argc, char** argv, char** envp)
 	err += Set_Memory(&mem, 0xFFFE, 0xEF);
 	err += Set_Memory(&mem, 0xEFFC, INSTRUCTION_LDA_ZEROPAGEX);
 	err += Set_Memory(&mem, 0xEFFD, 0x40);
-	err += Set_Memory(&mem, 0x0042, 0x84);
+	err += Set_Memory(&mem, 0x0042, 0xff);
 	err += Set_Memory(&mem, 0xEFFF, INSTRUCTION_ADC_IMMEDIATE);
-	err += Set_Memory(&mem, 0xF000, 0x0A);
+	err += Set_Memory(&mem, 0xF000, 0x05);
 
 	if (err != 0)
 	{
@@ -36,6 +36,7 @@ int main(int argc, char** argv, char** envp)
 	CPU_Execute(&cpu, &mem, 10);
 
 	(void)printf("Accumulator: %d\n", cpu.A);
+	(void)printf("Overflow: %d\nSign Incorrect: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
 
 	return 0;
 }
