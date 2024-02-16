@@ -36,7 +36,7 @@ int main(int argc, char** argv, char** envp)
 	CPU_Execute(&cpu, &mem, 10);
 
 	(void)printf("Accumulator: %d\n", cpu.A);
-	(void)printf("Overflow: %d\nSign Incorrect: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
+	(void)printf("Carry: %d\nOverflow: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
 
 	return 0;
 }
