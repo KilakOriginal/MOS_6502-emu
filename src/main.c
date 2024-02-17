@@ -1,7 +1,7 @@
 /*
  * Author:··········Malik Abdoul Hamidou
  * Date Created:····2024-02-14
- * Date Changed:····2024-02-15
+ * Date Changed:····2024-02-17
  * Description:·····A small sample programme, demonstrating the emulator
  * License:·········GPL3 (See LICENCE)
 */
@@ -9,8 +9,8 @@
 
 int main(int argc, char** argv, char** envp)
 {
-	struct Mem mem;
-	struct CPU cpu;
+	Mem mem;
+	CPU cpu;
 	int err = 0;
 
 	MOS_6502_set_endianness(AUTO);

@@ -5,7 +5,7 @@
 static int endianness = BIG;
 static int err = 0;
 
-void die(char* format, ...)
+void die(const char* format, ...)
 {
 	va_list argptr;
 	va_start(argptr, format);
@@ -24,7 +24,7 @@ void die(char* format, ...)
  * 
  * @param arg one of BIG=0, LITTLE=1, AUTO=2; sets endianness to the system's00000000
 */
-void MOS_6502_set_endianness(int arg)
+void MOS_6502_set_endianness(const int arg)
 {
 	if (arg == AUTO)
 	{
@@ -40,13 +40,16 @@ void MOS_6502_set_endianness(int arg)
 		die("Invalid endianness; must be one of BIG=0, LITTLE=1, AUTO=2");
 }
 
-Byte is_sign_set(Byte input)
+const Byte is_sign_set(const Byte input)
 	{ return input >> 7; }
 
-void Mem_Initialise(struct Mem* mem)
+void Mem_Initialise(Mem* mem)
 	{ (void)memset(mem, 0, sizeof(mem->Data)); }
 
-Byte Mem_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
+const Byte Mem_Read_Byte(const CPU* cpu,
+                         const Mem* mem,
+						 u32* cycles,
+						 const Byte address)
 {
 	Byte data = Get_Memory(mem, address);
 	*cycles -= 1;
@@ -54,7 +57,10 @@ Byte Mem_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
 	return data;
 }
 
-Byte Mem_Read_Word(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
+const Byte Mem_Read_Word(const CPU* cpu,
+                         const Mem* mem,
+						 u32* cycles,
+						 const Byte address)
 {
 	Word data = Mem_Read_Byte(cpu, mem, cycles, address);
 	if (endianness == LITTLE)
@@ -68,7 +74,7 @@ Byte Mem_Read_Word(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address)
 	return data;
 }
 
-Byte Mem_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles)
+const Byte Mem_Fetch_Byte(CPU* cpu, const Mem* mem, u32* cycles)
 {
 	Byte data = Get_Memory(mem, cpu->PC);
 	cpu->PC++;
@@ -77,7 +83,7 @@ Byte Mem_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles)
 	return data;
 }
 
-Word Mem_Fetch_Word(struct CPU* cpu, struct Mem* mem, u32* cycles)
+const Word Mem_Fetch_Word(CPU* cpu, const Mem* mem, u32* cycles)
 {
 	Word data = Mem_Fetch_Byte(cpu, mem, cycles);
 	if (endianness == LITTLE)
@@ -91,26 +97,26 @@ Word Mem_Fetch_Word(struct CPU* cpu, struct Mem* mem, u32* cycles)
 	return data;
 }
 
-Byte CPU_Fetch_Register(struct CPU* cpu, Byte reg, u32* cycles)
+const Byte CPU_Fetch_Register(const CPU* cpu, const Byte reg, u32* cycles)
 {
 	*cycles -= 1;
 	return reg;
 }
 
-int validate_index(Word index)
+int validate_index(const Word index)
 	{ 
 		assert(MAX_MEM >= sizeof(Word));
 		return (index >= 0);
 	}
 
-Byte Get_Memory(struct Mem* mem, Word index)
+const Byte Get_Memory(const Mem* mem, const Word index)
 {
 	if (!validate_index(index))
 		die("Invalid address '%d'", index);
 	return mem->Data[index];
 }
 
-int Set_Memory(struct Mem* mem, Word index, Byte data)
+const int Set_Memory(Mem* mem, const Word index, const Byte data)
 {
 	if (!validate_index(index))
 		return -1;
@@ -120,7 +126,7 @@ int Set_Memory(struct Mem* mem, Word index, Byte data)
 	return 0;
 }
 
-void CPU_Reset(struct CPU* cpu, struct Mem* mem)
+void CPU_Reset(CPU* cpu, Mem* mem)
 {
 	cpu->PC = 0xFFFC;	// Set Programme Counter
 	cpu->SP = 0x00FF;	// Set Stack Pointer
@@ -130,7 +136,7 @@ void CPU_Reset(struct CPU* cpu, struct Mem* mem)
 }
 
 // Flags
-void adc_set_flags(struct CPU* cpu, Byte input, Word sum)
+void adc_set_flags(CPU* cpu, const Byte input, const Word sum)
 {
 	cpu->C = (sum & 0xFF00) != 0;
 	cpu->Z = (cpu->A == 0);
@@ -138,7 +144,7 @@ void adc_set_flags(struct CPU* cpu, Byte input, Word sum)
 	cpu->N = is_sign_set(cpu->A);
 }
 
-void lda_set_flags(struct CPU* cpu)
+void lda_set_flags(CPU* cpu)
 {
 	cpu->Z = (cpu->A == 0);
 	cpu->N = is_sign_set(cpu->A);
@@ -162,7 +168,7 @@ void lda_set_flags(struct CPU* cpu)
  * @param mem the memory on which the cpu will run
  * @param cycles the number of cycles for which you allow the cpu to run
 */
-void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles)
+void CPU_Execute(CPU* cpu, Mem* mem, u32 cycles)
 {
 	Byte instruction;
 	u32* cycles_remaining = malloc(sizeof(u32));

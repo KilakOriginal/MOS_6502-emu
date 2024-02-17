@@ -5,32 +5,32 @@
 #include <stdio.h>
 #include <string.h>
 
-enum Endianness
+typedef enum Endianness
 {
 	BIG,
 	LITTLE,
 	AUTO
-};
+} Endianness;
 
 
 typedef unsigned char  Byte;	// 8 Bits
 typedef unsigned short Word;	// 16 Bits
-typedef unsigned int   u32;
+typedef unsigned int   u32;		// 32 Bits
 
 
 // Memory
 #define MAX_MEM 1024 * 64
 
-struct Mem
+typedef struct Memory
 {
 	Byte Data[MAX_MEM];
-};
+} Mem;
 
 
 // CPU
 #define MAX_ERRORS 10
 
-struct CPU
+typedef struct CPU
 {
 
 	Word PC;	// Programme Counter
@@ -49,29 +49,39 @@ struct CPU
 	Byte B : 1;	// Break Command
 	Byte V : 1;	// Overflow Flag
 	Byte N : 1;	// Negative Flag
-};
+} CPU;
 
 
 /**
- * @brief If arg is "AUTO" this will automatically determine the endianness of the
- * current system. Else arg is used to specify "BIG" or "LITTLE".
+ * @brief If arg is "AUTO" this will automatically determine the endianness of
+ * the current system. Else arg is used to specify "BIG" or "LITTLE".
  */ 
 void MOS_6502_set_endianness(int arg);
 
 
 // Memory functions
-void Mem_Initialise(struct Mem* mem);
-Byte Mem_Read_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles, Byte address);
-Byte Mem_Fetch_Byte(struct CPU* cpu, struct Mem* mem, u32* cycles);
+void Mem_Initialise(Mem* mem);
+const Byte Mem_Read_Byte(const CPU* cpu, 
+                   const Mem* mem,
+				   u32* cycles,
+				   const Byte address);
+const Byte Mem_Read_Word(const CPU* cpu,
+                   const Mem* mem,
+				   u32* cycles,
+				   const Byte address);
+const Byte Mem_Fetch_Byte(CPU* cpu, const Mem* mem, u32* cycles);
+const Word Mem_Fetch_Word(CPU* cpu, const Mem* mem, u32* cycles);
 
-Byte Get_Memory(struct Mem* mem, Word index);
-int Set_Memory(struct Mem* mem, Word index, Byte data);
+const Byte Get_Memory(const Mem* mem, const Word index);
+const int Set_Memory(Mem* mem, const Word index, const Byte data);
 
 
 // CPU functions
-void CPU_Reset(struct CPU* cpu, struct Mem* mem);
-void CPU_Execute(struct CPU* cpu, struct Mem* mem, u32 cycles);
-Byte CPU_Fetch_Register(struct CPU* cpu, Byte register, u32* cycles);
+void CPU_Reset(CPU* cpu, Mem* mem);
+void CPU_Execute(CPU* cpu, Mem* mem, const u32 cycles);
+const Byte CPU_Fetch_Register(const CPU* cpu,
+                              const Byte register,
+							  u32* cycles);
 
 // Opcodes
 // Add Memory to Accumulator with Carry
