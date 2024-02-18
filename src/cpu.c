@@ -3,6 +3,10 @@
 #include "../hdr/util.h"
 #include "../hdr/cpu.h"
 
+#define BYTE_SIZE 0x08
+#define WORD_HEAD 0xFF00
+#define WORD_TAIL 0x00FF
+
 static int endianness = BIG;
 static int err = 0;
 
@@ -55,10 +59,10 @@ const Byte Mem_Read_Word(const CPU* cpu,
 {
 	Word data = Mem_Read_Byte(cpu, mem, cycles, address);
 	if (endianness == LITTLE)
-		data |= (Mem_Read_Byte(cpu, mem, cycles, address + 1) << 0x08);
+		data |= (Mem_Read_Byte(cpu, mem, cycles, address + 1) << BYTE_SIZE);
 	else
 	{
-		data <<= 0x08;
+		data <<= BYTE_SIZE;
 		data |= Mem_Read_Byte(cpu, mem, cycles, address + 1);
 	}
 
@@ -78,10 +82,10 @@ const Word Mem_Fetch_Word(CPU* cpu, const Mem* mem, u32* cycles)
 {
 	Word data = Mem_Fetch_Byte(cpu, mem, cycles);
 	if (endianness == LITTLE)
-	     data |= (Mem_Fetch_Byte(cpu, mem, cycles) << 0x08);
+	     data |= (Mem_Fetch_Byte(cpu, mem, cycles) << BYTE_SIZE);
 	else
 	{
-		data <<= 0x08;
+		data <<= BYTE_SIZE;
 		data |= (Mem_Fetch_Byte(cpu, mem, cycles));
 	}
 
@@ -129,7 +133,7 @@ void CPU_Reset(CPU* cpu, Mem* mem)
 // Flags
 void adc_set_flags(CPU* cpu, const Byte input, const Word sum)
 {
-	cpu->C = (sum & 0xFF00) != 0;
+	cpu->C = (sum & WORD_HEAD) != 0;
 	cpu->Z = (cpu->A == 0);
 	cpu->V = (~((cpu->N << 7) ^ input) & (input ^ sum)) >> 7;
 	cpu->N = is_sign_set(cpu->A);
@@ -175,7 +179,8 @@ void CPU_Execute(CPU* cpu, Mem* mem, u32 cycles)
 	while (*cycles_remaining > 0)
 	{
 		//DEBUG
-		(void)printf("Reading %d. Cycles remaining: %d\n", cpu->PC, *cycles_remaining);
+		(void)printf("Reading %d. Cycles remaining: %d\n",
+			cpu->PC, *cycles_remaining);
 
 		instruction = Mem_Fetch_Byte(cpu, mem, cycles_remaining);
 
@@ -189,7 +194,7 @@ void CPU_Execute(CPU* cpu, Mem* mem, u32 cycles)
 				Byte input = Mem_Fetch_Byte(cpu, mem, cycles_remaining);
 				Word sum = (cpu->A + input + cpu->C);
 
-				cpu->A = sum & 0xFF;
+				cpu->A = sum & WORD_TAIL;
 
 				adc_set_flags(cpu, input, sum);
 			} break;
@@ -334,4 +339,3 @@ void CPU_Execute(CPU* cpu, Mem* mem, u32 cycles)
 
 	free(cycles_remaining);
 }
-
