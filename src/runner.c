@@ -36,9 +36,26 @@ Lexer Lexer_Initialise(const char* contents, const size_t contents_size)
     return lexer;
 }
 
+void trim_left(Lexer* lexer)
+{
+    while(lexer->position < lexer->contents_size 
+        && isspace(lexer->contents[lexer->position]))
+    {
+        char current_symbol = lexer->contents[lexer->position];
+        lexer->position++;
+
+        if (current_symbol == '\n')
+        {
+            lexer->line++;
+            lexer->beginning_of_line = lexer->position;
+        }
+        
+    }
+}
+
 const Token Lexer_Advance(Lexer* lexer)
 {
-    // TODO: trim leading ws
+    trim_left(lexer);
 
     Token token = 
     {
@@ -100,9 +117,9 @@ const Token Lexer_Advance(Lexer* lexer)
                 return token;
             }
 
-            else
-                die("Illegal Character '%s'",
-                    lexer->contents[lexer->position]);
+            //else
+                //die("Illegal Character '%s'",
+                //    lexer->contents[lexer->position]);
         }
     }
     

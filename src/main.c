@@ -42,7 +42,7 @@ int main(int argc, char** argv, char** envp)
 	(void)printf("Accumulator: %d\n", cpu.A);
 	(void)printf("Carry: %d\nOverflow: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
 
-	const char* test = "_label#;Comment";
+	const char* test = "_label  #;A Comment\nNewLine $";
 	Lexer lexer = Lexer_Initialise(test, strlen(test));
 	Token token;
 	token = Lexer_Advance(&lexer);
