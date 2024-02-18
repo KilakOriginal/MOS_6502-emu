@@ -5,7 +5,11 @@
  * Description:·····A small sample programme, demonstrating the emulator
  * License:·········GPL3 (See LICENCE)
 */
+
+#include <ctype.h>
+
 #include "../hdr/cpu.h"
+#include "../hdr/runner.h"
 
 int main(int argc, char** argv, char** envp)
 {
@@ -37,6 +41,16 @@ int main(int argc, char** argv, char** envp)
 
 	(void)printf("Accumulator: %d\n", cpu.A);
 	(void)printf("Carry: %d\nOverflow: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
+
+	const char* test = "_label#;Comment";
+	Lexer lexer = Lexer_Initialise(test, strlen(test));
+	Token token;
+	token = Lexer_Advance(&lexer);
+	while (token.type != TOKEN_EOF)
+	{
+		(void)printf("%.*s (%s)\n", (int) token.value_size, token.value, token_name(token.type));
+		token = Lexer_Advance(&lexer);
+	}
 
 	return 0;
 }

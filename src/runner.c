@@ -5,7 +5,24 @@
 
 #include <ctype.h>
 
+#include "../hdr/util.h"
 #include "../hdr/runner.h"
+
+const char* token_name(const TokenType type)
+{
+    switch(type)
+    {
+        case TOKEN_EOF: return "EOF";
+        case TOKEN_NUM: return "NUM";
+        case TOKEN_CHAR: return "CHAR";
+        case TOKEN_SEMCOL: return "SEMICOLON";
+        case TOKEN_HASH: return "HASH";
+        case TOKEN_DOLLAR: return "DOLLAR";
+        case TOKEN_LPAREN: return "LPAREN";
+        case TOKEN_RPAREN: return "RPAREN";
+        default: return "ILLEGAL";
+    }
+}
 
 int is_label_char(const char input)
     { return (isalnum(input) || input == '_'); }
@@ -19,19 +36,18 @@ Lexer Lexer_Initialise(const char* contents, const size_t contents_size)
     return lexer;
 }
 
-const Token Lexer_Next(Lexer* lexer)
+const Token Lexer_Advance(Lexer* lexer)
 {
     // TODO: trim leading ws
 
     Token token = 
     {
-        .repr = &lexer->contents[lexer->position],
+        .value = &lexer->contents[lexer->position],
     };
 
     if (lexer->position >= lexer->contents_size)
         return token;
-    
-    // Special characters
+
     switch (lexer->contents[lexer->position])
     {
         case EOF:
@@ -41,51 +57,54 @@ const Token Lexer_Next(Lexer* lexer)
         case ';':
         {
             token.type = TOKEN_SEMCOL;
-            token.repr_length = 1;
+            token.value_size = 1;
             lexer->position++;
         } break;
         case '#':
         {
             token.type = TOKEN_HASH;
-            token.repr_length = 1;
+            token.value_size = 1;
             lexer->position++;
         } break;
         case '$':
         {
             token.type = TOKEN_DOLLAR;
-            token.repr_length = 1;
+            token.value_size = 1;
             lexer->position++;
         } break;
         case '(':
         {
             token.type = TOKEN_LPAREN;
-            token.repr_length = 1;
+            token.value_size = 1;
             lexer->position++;
         } break;
         case ')':
         {
             token.type = TOKEN_RPAREN;
-            token.repr_length = 1;
+            token.value_size = 1;
             lexer->position++;
         } break;
         default:
-            break;
-    }
+        {    
+            if (isalpha(lexer->contents[lexer->position])
+                || lexer->contents[lexer->position] == '_')
+            {
+                token.type = TOKEN_CHAR;
+                while (lexer->position < lexer->contents_size 
+                    && is_label_char(lexer->contents[lexer->position]))
+                {
+                    lexer->position++;
+                    token.value_size++;
+                }
 
-    // Labels
-    if (isalpha(lexer->contents[lexer->position])
-        || lexer->contents[lexer->position] == '_')
-    {
-        token.type = TOKEN_CHAR;
-        while (lexer->position < lexer->contents_size 
-            && is_label_char(lexer->contents[lexer->position]))
-        {
-            lexer->position++;
-            token.repr_length++;
+                return token;
+            }
+
+            else
+                die("Illegal Character '%s'",
+                    lexer->contents[lexer->position]);
         }
-
-        return token;
     }
-
+    
     return token;
 }

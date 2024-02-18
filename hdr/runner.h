@@ -19,8 +19,8 @@ typedef enum
 typedef struct Token
 {
     TokenType type;
-    const char* repr;
-    size_t repr_length;
+    const char* value;
+    size_t value_size;
 } Token;
 
 typedef struct Lexer
@@ -30,8 +30,12 @@ typedef struct Lexer
     size_t position, line, beginning_of_line;
 } Lexer;
 
+
+// Token functions
+const char* token_name(const TokenType type);
+
 // Lexer funtions
 Lexer Lexer_Initialise(const char* contents, const size_t contents_size);
-const Token Lexer_Next(Lexer* lexer);
+const Token Lexer_Advance(Lexer* lexer);
 
-#endif // !Runner_h
+#endif // !RUNNER_h

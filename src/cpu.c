@@ -1,19 +1,10 @@
-#include <stdarg.h>
 #include <assert.h>
+
+#include "../hdr/util.h"
 #include "../hdr/cpu.h"
 
 static int endianness = BIG;
 static int err = 0;
-
-void die(const char* format, ...)
-{
-	va_list argptr;
-	va_start(argptr, format);
-	(void)fprintf(stderr, format, argptr);
-	va_end(argptr);
-
-	exit(EXIT_FAILURE);
-}
 
 /**
  * @brief Set the endianness to correctly represent the 6502's memory
