@@ -14,8 +14,8 @@ const char* token_name(const TokenType type)
     {
         case TOKEN_EOF: return "EOF";
         case TOKEN_NUM: return "NUM";
-        case TOKEN_CHAR: return "CHAR";
-        case TOKEN_SEMCOL: return "SEMICOLON";
+        case TOKEN_ID: return "ID";
+        case TOKEN_COMMENT: return "COMMENT";
         case TOKEN_HASH: return "HASH";
         case TOKEN_DOLLAR: return "DOLLAR";
         case TOKEN_LPAREN: return "LPAREN";
@@ -36,21 +36,27 @@ Lexer Lexer_Initialise(const char* contents, const size_t contents_size)
     return lexer;
 }
 
+const char Lexer_Consume(Lexer* lexer)
+{
+    assert(lexer->position < lexer->contents_size);
+
+    char current_symbol = lexer->contents[lexer->position];
+    lexer->position++;
+
+    if (current_symbol == '\n')
+    {
+        lexer->line++;
+        lexer->beginning_of_line = lexer->position;
+    }
+
+    return current_symbol;
+}
+
 void trim_left(Lexer* lexer)
 {
     while(lexer->position < lexer->contents_size 
         && isspace(lexer->contents[lexer->position]))
-    {
-        char current_symbol = lexer->contents[lexer->position];
-        lexer->position++;
-
-        if (current_symbol == '\n')
-        {
-            lexer->line++;
-            lexer->beginning_of_line = lexer->position;
-        }
-        
-    }
+        (void)Lexer_Consume(lexer);
 }
 
 const Token Lexer_Advance(Lexer* lexer)
@@ -73,9 +79,18 @@ const Token Lexer_Advance(Lexer* lexer)
         } break;
         case ';':
         {
-            token.type = TOKEN_SEMCOL;
-            token.value_size = 1;
-            lexer->position++;
+            token.type = TOKEN_COMMENT;
+
+            while (lexer->position < lexer->contents_size
+                && lexer->contents[lexer->position] != '\n')
+            {
+                token.value_size++;
+                (void)Lexer_Consume(lexer);
+            }
+            
+            if (lexer->position < lexer->contents_size)
+                (void)Lexer_Consume(lexer);
+
         } break;
         case '#':
         {
@@ -106,7 +121,7 @@ const Token Lexer_Advance(Lexer* lexer)
             if (isalpha(lexer->contents[lexer->position])
                 || lexer->contents[lexer->position] == '_')
             {
-                token.type = TOKEN_CHAR;
+                token.type = TOKEN_ID;
                 while (lexer->position < lexer->contents_size 
                     && is_label_char(lexer->contents[lexer->position]))
                 {
@@ -116,12 +131,38 @@ const Token Lexer_Advance(Lexer* lexer)
 
                 return token;
             }
+            else    // Illegal/undefined
+            {
+                token.type = TOKEN_INVALID;
+                while (lexer->position < lexer->contents_size
+                    && !isspace(lexer->contents[lexer->position]))
+                {
+                    lexer->position++;
+                    token.value_size++;
+                }
 
-            //else
-                //die("Illegal Character '%s'",
-                //    lexer->contents[lexer->position]);
+                return token;
+            }
         }
     }
     
     return token;
+}
+
+void Lexer_Run(Lexer* lexer, Token* destination, const size_t size)
+{
+    int i = 0;
+    int max_space = size / sizeof(Token);
+    Token token = Lexer_Advance(lexer);
+
+    while (token.type != TOKEN_EOF)
+	{
+        if (i >= max_space)
+            die("Destination too small!");
+
+		destination[i] = token;
+        i++;
+
+		token = Lexer_Advance(lexer);
+	}
 }

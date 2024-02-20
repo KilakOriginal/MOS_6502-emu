@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include "../hdr/util.h"
 #include "../hdr/cpu.h"
 

@@ -8,12 +8,13 @@ typedef enum
 {
     TOKEN_EOF,      // End of File
     TOKEN_NUM,      // Numbers
-    TOKEN_CHAR,     // Characters
-    TOKEN_SEMCOL,   // ;
+    TOKEN_ID,       // Identifiers
+    TOKEN_COMMENT,  // ;<Text>
     TOKEN_HASH,     // Immediate
     TOKEN_DOLLAR,   // Hexadecimal
     TOKEN_LPAREN,   // (
     TOKEN_RPAREN,   // )
+    TOKEN_INVALID,
 } TokenType;
 
 typedef struct Token
@@ -37,5 +38,6 @@ const char* token_name(const TokenType type);
 // Lexer funtions
 Lexer Lexer_Initialise(const char* contents, const size_t contents_size);
 const Token Lexer_Advance(Lexer* lexer);
+void Lexer_Run(Lexer* lexer, Token* destination, const size_t size);
 
 #endif // !RUNNER_h
