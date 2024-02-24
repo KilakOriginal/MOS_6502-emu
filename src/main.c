@@ -10,6 +10,7 @@
 
 #include "../hdr/cpu.h"
 #include "../hdr/runner.h"
+#include "../hdr/util.h"
 
 int main(int argc, char** argv, char** envp)
 {
@@ -39,10 +40,10 @@ int main(int argc, char** argv, char** envp)
 
 	CPU_Execute(&cpu, &mem, 10);
 
-	(void)printf("Accumulator: %d\n", cpu.A);
-	(void)printf("Carry: %d\nOverflow: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
+	//(void)printf("Accumulator: %d\n", cpu.A);
+	//(void)printf("Carry: %d\nOverflow: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
 
-	const char* test = "_label  #;A Comment\nNewLine $'zusasdfasdfaw4534tdgr dsf";
+	const char* test = "_label  #48 ;A Comment\nNewLine $'zusasdfasdfaw4534tdgr dsf";
 	Lexer lexer = Lexer_Initialise(test, strlen(test));
 	/*Token token;
 	token = Lexer_Advance(&lexer);
@@ -52,11 +53,15 @@ int main(int argc, char** argv, char** envp)
 		token = Lexer_Advance(&lexer);
 	}*/
 
-	Token tokens[7];
-	Lexer_Run(&lexer, tokens, sizeof(tokens));
+	TokenList* tokens = Lexer_Run(&lexer);
 
-	for (int i = 0; i < (sizeof(tokens) / sizeof(Token)); i++)
-		(void)printf("%.*s (%s)\n", (int) tokens[i].value_size, tokens[i].value, token_name(tokens[i].type));
+	for (int i = 0; i < tokens->current_size; i++)
+		(void)printf("%.*s (%s)\n", 
+		(int) tokenlist_get(tokens, i).value_size,
+		tokenlist_get(tokens, i).value,
+		token_name(tokenlist_get(tokens, i).type));
+
+	free(tokens);
 
 	return 0;
 }
