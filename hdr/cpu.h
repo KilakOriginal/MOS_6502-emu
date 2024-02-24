@@ -72,6 +72,11 @@ const Byte Mem_Read_Word(const CPU* cpu,
 const Byte Mem_Fetch_Byte(CPU* cpu, const Mem* mem, u32* cycles);
 const Word Mem_Fetch_Word(CPU* cpu, const Mem* mem, u32* cycles);
 
+void Mem_Write_word(Mem* mem,
+                    u32* cycles,
+                    const Word word,
+                    const Word address);
+
 const Byte Get_Memory(const Mem* mem, const Word index);
 const int Set_Memory(Mem* mem, const Word index, const Byte data);
 

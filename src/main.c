@@ -23,9 +23,12 @@ int main(int argc, char** argv, char** envp)
 	CPU_Reset(&cpu, &mem);
 
 	cpu.X = 0x0002;
-	err += Set_Memory(&mem, 0xFFFC, INSTRUCTION_JMP_ABSOLUTE);
-	err += Set_Memory(&mem, 0xFFFD, 0xFC);
-	err += Set_Memory(&mem, 0xFFFE, 0xEF);
+    err += Set_Memory(&mem, 0xFFFC, INSTRUCTION_JSR_ABSOLUTE);
+    err += Set_Memory(&mem, 0xFFFD, 0x11);
+    err += Set_Memory(&mem, 0xFFFE, 0x11);
+	err += Set_Memory(&mem, 0x1111, INSTRUCTION_JMP_ABSOLUTE);
+	err += Set_Memory(&mem, 0x1112, 0xFC);
+	err += Set_Memory(&mem, 0x1113, 0xEF);
 	err += Set_Memory(&mem, 0xEFFC, INSTRUCTION_LDA_ZEROPAGEX);
 	err += Set_Memory(&mem, 0xEFFD, 0x40);
 	err += Set_Memory(&mem, 0x0042, 0xff);
@@ -38,20 +41,13 @@ int main(int argc, char** argv, char** envp)
 		exit(EXIT_FAILURE);
 	}
 
-	CPU_Execute(&cpu, &mem, 10);
+	CPU_Execute(&cpu, &mem, 16);
 
-	//(void)printf("Accumulator: %d\n", cpu.A);
-	//(void)printf("Carry: %d\nOverflow: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
+	(void)printf("Accumulator: %d\n", cpu.A);
+	(void)printf("Carry: %d\nOverflow: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
 
-	const char* test = "_label  #48 ;A Comment\nNewLine $'zusasdfasdfaw4534tdgr dsf";
+	/*const char* test = "_label  #48 ;A Comment\nNewLine $'zusasdfasdfaw4534tdgr dsf";
 	Lexer lexer = Lexer_Initialise(test, strlen(test));
-	/*Token token;
-	token = Lexer_Advance(&lexer);
-	while (token.type != TOKEN_EOF)
-	{
-		(void)printf("%.*s (%s)\n", (int) token.value_size, token.value, token_name(token.type));
-		token = Lexer_Advance(&lexer);
-	}*/
 
 	TokenList* tokens = Lexer_Run(&lexer);
 
@@ -61,7 +57,7 @@ int main(int argc, char** argv, char** envp)
 		tokenlist_get(tokens, i).value,
 		token_name(tokenlist_get(tokens, i).type));
 
-	free(tokens);
+	free(tokens);*/
 
 	return 0;
 }

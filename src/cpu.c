@@ -90,6 +90,18 @@ const Word Mem_Fetch_Word(CPU* cpu, const Mem* mem, u32* cycles)
 	return data;
 }
 
+void Mem_Write_word(Mem* mem,
+                    u32* cycles,
+                    const Word word,
+                    const Word address)
+{
+    // TODO: What does the 6502 do with out-of-range addresses?
+    mem->Data[address] = word & WORD_TAIL;
+    mem->Data[address + 1] = word >> BYTE_SIZE;
+
+    *cycles -= 2;
+}
+
 const Byte CPU_Fetch_Register(const CPU* cpu, const Byte reg, u32* cycles)
 {
 	*cycles -= 1;
@@ -225,9 +237,15 @@ void CPU_Execute(CPU* cpu, Mem* mem, u32 cycles)
 			case INSTRUCTION_JSR_ABSOLUTE:
 			{
 				assert(*cycles_remaining >= 6-1);
+
+                Word sr_address = Mem_Fetch_Word(cpu, mem, cycles_remaining);
+                Mem_Write_word(mem, cycles_remaining, cpu->PC - 1, cpu->SP);
+                cpu->SP++;
+                cpu->PC = sr_address;
+                *cycles_remaining -= 1;
 				
 				// DEBUG
-				(void)printf("Executed JSR Absolute\n");
+				(void)printf("Executed JSR Absolute. Going to %d...\n", sr_address);
 			} break;
 
 
@@ -237,9 +255,7 @@ void CPU_Execute(CPU* cpu, Mem* mem, u32 cycles)
 				assert(*cycles_remaining >= 2-1);
 
 				cpu->A = 
-					Mem_Fetch_Byte(cpu, 
-						       mem,
-						       cycles_remaining);
+					Mem_Fetch_Byte(cpu, mem, cycles_remaining);
 				lda_set_flags(cpu);
 
 				// DEBUG
@@ -254,9 +270,9 @@ void CPU_Execute(CPU* cpu, Mem* mem, u32 cycles)
 						       mem, 
 						       cycles_remaining);
 				cpu->A = Mem_Read_Byte(cpu,
-						       mem,
-						       cycles_remaining,
-						       zero_page_address);
+                                       mem,
+                                       cycles_remaining,
+                                       zero_page_address);
 				lda_set_flags(cpu);
 
 				// DEBUG
