@@ -11,7 +11,7 @@ typedef enum
     TOKEN_ID,       // Identifiers
     TOKEN_COMMENT,  // ;<Text>
     TOKEN_IMMD,     // Immediate
-    TOKEN_DOLLAR,   // Hexadecimal
+    TOKEN_HEXNUM,   // Hexadecimal
     TOKEN_LPAREN,   // (
     TOKEN_RPAREN,   // )
     TOKEN_INVALID,

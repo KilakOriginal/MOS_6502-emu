@@ -41,12 +41,12 @@ int main(int argc, char** argv, char** envp)
 		exit(EXIT_FAILURE);
 	}
 
-	CPU_Execute(&cpu, &mem, 16);
+	CPU_Execute(&cpu, &mem, 14);
 
 	(void)printf("Accumulator: %d\n", cpu.A);
 	(void)printf("Carry: %d\nOverflow: %d\nZero: %d\nNegative: %d\n", cpu.C, cpu.V, cpu.Z, cpu.N);
 
-	/*const char* test = "_label  #48 ;A Comment\nNewLine $'zusasdfasdfaw4534tdgr dsf";
+	const char* test = "_label  #48 ;A Comment\nNewLine $47a 'zusasdfasdfaw4534tdgr dsf";
 	Lexer lexer = Lexer_Initialise(test, strlen(test));
 
 	TokenList* tokens = Lexer_Run(&lexer);
@@ -57,7 +57,7 @@ int main(int argc, char** argv, char** envp)
 		tokenlist_get(tokens, i).value,
 		token_name(tokenlist_get(tokens, i).type));
 
-	free(tokens);*/
+	free(tokens);
 
 	return 0;
 }

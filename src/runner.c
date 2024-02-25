@@ -17,7 +17,7 @@ const char* token_name(const TokenType type)
         case TOKEN_ID: return "ID";
         case TOKEN_COMMENT: return "COMMENT";
         case TOKEN_IMMD: return "IMMEDIATE";
-        case TOKEN_DOLLAR: return "DOLLAR";
+        case TOKEN_HEXNUM: return "HEXADECIMAL";
         case TOKEN_LPAREN: return "LPAREN";
         case TOKEN_RPAREN: return "RPAREN";
         default: return "ILLEGAL";
@@ -138,16 +138,11 @@ const Token Lexer_Advance(Lexer* lexer)
         } break;
         case '#':
         {
-            lexer->position++;
-            
             token.type = TOKEN_IMMD;
             
             while (lexer->position < lexer->contents_size
                 && !isspace(lexer->contents[lexer->position]))
             {
-                // TODO: Special treatment for comments, parenth. etc.
-                if (!isdigit(lexer->contents[lexer->position]))
-                    token.type = TOKEN_INVALID;
                 token.value_size++;
                 (void)Lexer_Consume(lexer);
             }
@@ -157,9 +152,17 @@ const Token Lexer_Advance(Lexer* lexer)
         } break;
         case '$':
         {
-            token.type = TOKEN_DOLLAR;
-            token.value_size = 1;
-            lexer->position++;
+            token.type = TOKEN_HEXNUM;
+            
+            while (lexer->position < lexer->contents_size
+                && !isspace(lexer->contents[lexer->position]))
+            {
+                token.value_size++;
+                (void)Lexer_Consume(lexer);
+            }
+
+            if (lexer->position < lexer->contents_size)
+                (void)Lexer_Consume(lexer);
         } break;
         case '(':
         {
