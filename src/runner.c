@@ -5,8 +5,8 @@
 
 #include <ctype.h>
 
-#include "../hdr/util.h"
-#include "../hdr/runner.h"
+#include "util.h"
+#include "runner.h"
 
 const char* token_name(const TokenType type)
 {

@@ -1,1 +1,0 @@
-/usr/bin/cc "CMakeFiles/MOS_6503-emu.dir/src/cpu.c.o" "CMakeFiles/MOS_6503-emu.dir/src/main.c.o" -o MOS_6503-emu 

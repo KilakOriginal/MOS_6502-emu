@@ -1,4 +1,4 @@
-#include "../hdr/util.h"
+#include "util.h"
 
 void die(const char* format, ...)
 {

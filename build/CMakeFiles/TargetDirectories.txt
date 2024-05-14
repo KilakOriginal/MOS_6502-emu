@@ -1,3 +1,0 @@
-/home/malik/MEGA/Code/MOS_6502-emu/build/CMakeFiles/MOS_6503-emu.dir
-/home/malik/MEGA/Code/MOS_6502-emu/build/CMakeFiles/edit_cache.dir
-/home/malik/MEGA/Code/MOS_6502-emu/build/CMakeFiles/rebuild_cache.dir

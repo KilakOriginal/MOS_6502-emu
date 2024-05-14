@@ -1,5 +1,5 @@
-#include "../hdr/util.h"
-#include "../hdr/cpu.h"
+#include "util.h"
+#include "cpu.h"
 
 #define BYTE_SIZE 0x08
 #define WORD_HEAD 0xFF00
