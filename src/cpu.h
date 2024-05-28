@@ -169,7 +169,46 @@ const Byte CPU_Fetch_Register(const CPU* cpu,
 #define INSTRUCTION_CMP_INDIRECTX   0xC1	// (Zero Page,X)
 #define INSTRUCTION_CMP_INDIRECTY   0xD1	// (Zero Page),Y
 
-// TODO: Add opcodes 
+// Compare X Register
+#define INSTRUCTION_CPX_IMMEDIATE   0xE0    // Immediate
+#define INSTRUCTION_CPX_ZEROPAGE    0xE4    // Zero Page
+#define INSTRUCTION_CPX_ABSOLUTE    0xEC    // Absolute
+
+// Compare Y Register
+#define INSTRUCTION_CPY_IMMEDIATE   0xC0    // Immediate
+#define INSTRUCTION_CPY_ZEROPAGE    0xC4    // Zero Page
+#define INSTRUCTION_CPY_ABSOLUTE    0xCC    // Absolute
+
+// Decrement Memory
+#define INSTRUCTION_DEC_ZEROPAGE    0xC6    // Zero Page
+#define INSTRUCTION_DEC_ZEROPAGEX   0xD6    // Zero Page,X
+#define INSTRUCTION_DEC_ABSOLUTE    0xCE    // Absolute
+#define INSTRUCTION_DEC_ABSOLUTEX   0xDE    // Absolute,X
+
+// Bitwise Exclusive Or
+#define INSTRUCTION_EOR_IMMEDIATE   0x49    // Immediate
+#define INSTRUCTION_EOR_ZEROPAGE    0x45    // Zero Page
+#define INSTRUCTION_EOR_ZEROPAGEX   0x55    // Zero Page X
+#define INSTRUCTION_EOR_ABSOLUTE    0x4D    // Absolute
+#define INSTRUCTION_EOR_ABSOLUTEX   0x5D    // Absolute X
+#define INSTRUCTION_EOR_ABSOLUTEY   0x59    // Absolute Y
+#define INSTRUCTION_EOR_INDIRECTX   0x41    // Indirect X
+#define INSTRUCTION_EOR_INDIRECTY   0x51    // Indirect Y
+
+// Flag Instructions
+#define INSTRUCTION_CLC             0x18    // Clear Carry
+#define INSTRUCTION_SEC             0x38    // Set Carry
+#define INSTRUCTION_CLI             0x58    // Clear Input
+#define INSTRUCTION_SEI             0x78    // Set Interrupt
+#define INSTRUCTION_CLV             0xB8    // Cleaer Overflow
+#define INSTRUCTION_CLD             0xD8    // Clear Decimal
+#define INSTRUCTION_SED             0xF8    // Set Decimal
+
+// Increment Memory
+#define INSTRUCTION_INC_ZEROPAGE    0xE6    // Zero Page
+#define INSTRUCTION_INC_ZEROPAGEX   0xF6    // Zero Page,X
+#define INSTRUCTION_INC_ABSOLUTE    0xEE    // Absolute
+#define INSTRUCTION_INCABSOLUTEX    0xFE    // Absolute,X
 
 // Jump
 #define INSTRUCTION_JMP_ABSOLUTE    0x4C	// Absolute
@@ -177,8 +216,6 @@ const Byte CPU_Fetch_Register(const CPU* cpu,
 
 // Jump To Subroutine
 #define INSTRUCTION_JSR_ABSOLUTE    0x20	// Absolute
-
-// TODO: Add opcodes 
 
 // Load Accumulator
 #define INSTRUCTION_LDA_IMMEDIATE   0xA9	// Immediate
@@ -190,6 +227,25 @@ const Byte CPU_Fetch_Register(const CPU* cpu,
 #define INSTRUCTION_LDA_INDIRECTX   0xA1	// Indirect,X
 #define INSTRUCTION_LDA_INDIRECTY   0xB1	// Indirect,Y
 
-// TODO: Add opcodes 
+// Load X Register
+#define INSTRUCTION_LDX_IMMEDIATE   0xA2    // Immediate
+#define INSTRUCTION_LDX_ZEROPAGE    0xA6    // Zero Page
+#define INSTRUCTION_LDX_ZEROPAGEY   0xB6    // Zero Page,Y
+#define INSTRUCTION_LDX_ABSOLUTE    0xAE    // Absolute
+#define INSTRUCTION_LDX_ABSOLUTEY   0xBE    // Absolute,Y
+
+// Load Y Register
+#define INSTRUCTION_LDY_IMMEDIATE   0xA0    // Immediate
+#define INSTRUCTION_LDY_ZEROPAGE    0xA4    // Zero Page
+#define INSTRUCTION_LDY_ZEROPAGEX   0xB4    // Zero Page,Y
+#define INSTRUCTION_LDY_ABSOLUTE    0xAC    // Absolute
+#define INSTRUCTION_LDY_ABSOLUTEX   0xBC    // Absolute,Y
+
+// Logical Shift Right
+#define INSTRUCTION_LSR_ACCUMULATOR 0x4A    // Accumulator
+#define INSTRUCTION_LSR_ZEROPAGE    0x46    // Zero Page
+#define INSTRUCTION_LSR_ZEROPAGEX   0x56    // Zero Page,X
+#define INSTRUCTION_LSR_ABSOLUTE    0x4E    // Absolute
+#define INSTRUCTION_LSR_ABSOLUTEX   0x5E    // Absolute,X
 
 #endif // !CPU_h
