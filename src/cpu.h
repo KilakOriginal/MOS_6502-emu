@@ -262,25 +262,70 @@ const Byte CPU_Fetch_Register(const CPU* cpu,
 #define INSTRUCTION_ORA_INDIRECTY   0x11    // Indirect,Y
 
 // Register Instructions
+#define INSTRUCTION_TAX             0xAA    // Transfer A to X
+#define INSTRUCTION_TXA             0x8A    // Transfer X to A
+#define INSTRUCTION_DEX             0xCA    // Decrement X
+#define INSTRUCTION_INX             0xE8    // Increment X
+#define INSTRUCTION_TAY             0xA8    // Transfer A to Y
+#define INSTRUCTION_TYA             0x98    // Transfer Y to A
+#define INSTRUCTION_DEY             0x88    // Decrement Y
+#define INSTRUCTION_INY             0xC8    // Increment Y
 
 // Rotate Left
+#define INSTRUCTION_ROL_ACCUMULATOR 0x2A    // Accumulator
+#define INSTRUCTION_ROL_ZEROPAGE    0x36    // Zero Page
+#define INSTRUCTION_ROL_ZEROPAGEX   0x36    // Zero Page,X
+#define INSTRUCTION_ROL_ABSOLUTE    0x2E    // Absolute
+#define INSTRUCTION_ROL_ABSOLUTEX   0x3E    // Absolute,X
 
 // Rotate Right
+#define INSTRUCTION_ROR_ACCUMULATOR 0x6A    // Accumulator
+#define INSTRUCTION_ROR_ZEROPAGE    0x66    // Zero Page
+#define INSTRUCTION_ROR_ZEROPAGEX   0x76    // Zero Page,X
+#define INSTRUCTION_ROR_ABSOLUTE    0x6E    // Absolute
+#define INSTRUCTION_ROR_ABSOLUTEX   0x7E    // Absolute,X
 
 // Return from Interrupt
-
-// Return from Interrupt
+#define INSTRUCTION_RTI_IMPLIED     0x40    // Implied
 
 // Return from Subroutine
+#define INSTRUCTION_RTS_IMPLIED     0x60    // Implied
 
 // Subtract with Carry
+#define INSTRUCTION_SBC_IMMEDIATE   0xE9    // Immediate
+#define INSTRUCTION_SBC_ZEROPAGE    0xE5    // Zero Page
+#define INSTRUCTION_SBC_ZEROPAGEX   0xF5    // Zero Page,X
+#define INSTRUCTION_SBC_ABSOLUTE    0xED    // Absolute
+#define INSTRUCTION_SBC_ABSOLUTEX   0xFD    // Absolute,X
+#define INSTRUCTION_SBC_ABSOLUTEY   0xF9    // Absolute,Y
+#define INSTRUCTION_SBC_INDIRECTX   0xE1    // Indirect,X
+#define INSTRUCTION_SBC_INDIRECTY   0xF1    // Indirect,Y
 
 // Store Accumulator
+#define INSTRUCTION_STA_ZEROPAGE    0x85    // Zero Page
+#define INSTRUCTION_STA_ZEROPAGEX   0x95    // Zero Page,X
+#define INSTRUCTION_STA_ABOSLUTE    0x8D    // Absolute
+#define INSTRUCTION_STA_ABSOLUTEX   0x9D    // Absolute,X
+#define INSTRUCTION_STA_ABSOLUTEY   0x99    // Absolute,Y
+#define INSTRUCTION_STA_INDIRECTX   0x81    // Indirect,X
+#define INSTRUCTION_STA_INDIRECTY   0x91    // Indirect,Y
 
 // Stack Instructions
+#define INSTRUCTION_TXS             0x9A    // Transfer X to Stack ptr
+#define INSTRUCTION_TSX             0xBA    // Transfer Stack ptr to X
+#define INSTRUCTION_PHA             0x48    // Push Accumulator
+#define INSTRUCTION_PLA             0x68    // Pull Accumulator
+#define INSTRUCTION_PHP             0x08    // Push Processor Status
+#define INSTRUCTION_PLP             0x28    // Pull Processor Status
 
 // Store X Register
+#define INSTRUCTION_STX_ZEROPAGE    0x86    // Zero Page
+#define INSTRUCTION_STX_ZEROPAGEY   0x96    // Zero Page,Y
+#define INSTRUCTION_STX_ABSOLUTE    0x8E    // Absolute
 
 // Store Y Register
+#define INSTRUCTION_STY_ZEROPAGE    0x84    // Zero Page
+#define INSTRUCTION_STY_ZEROPAGEX   0x94    // Zero Page,X
+#define INSTRUCTION_STY_ABSOLUTE    0x8C    // Absolute
 
 #endif // !CPU_h
