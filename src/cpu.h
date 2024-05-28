@@ -248,4 +248,39 @@ const Byte CPU_Fetch_Register(const CPU* cpu,
 #define INSTRUCTION_LSR_ABSOLUTE    0x4E    // Absolute
 #define INSTRUCTION_LSR_ABSOLUTEX   0x5E    // Absolute,X
 
+// No Operation
+#define INSTRUCTION_NOP_IMPLIED     0xEA    // Implied
+
+// Bitwise Or with Accumulator
+#define INSTRUCTION_ORA_IMMEDIATE   0x09    // Immedeate
+#define INSTRUCTION_ORA_ZEROPAGE    0x05    // Zero Page
+#define INSTRUCTION_ORA_ZEROPAGEX   0x15    // Zero Page,X
+#define INSTRUCTION_ORA_ABSOLUTE    0x0D    // Absolute
+#define INSTRUCTION_ORA_ABSOLUTEX   0x1D    // Absolute,X
+#define INSTRUCTION_ORA_ABSOLUTEY   0x19    // Absolute,Y
+#define INSTRUCTION_ORA_INDIRECTX   0x01    // Indirect,X
+#define INSTRUCTION_ORA_INDIRECTY   0x11    // Indirect,Y
+
+// Register Instructions
+
+// Rotate Left
+
+// Rotate Right
+
+// Return from Interrupt
+
+// Return from Interrupt
+
+// Return from Subroutine
+
+// Subtract with Carry
+
+// Store Accumulator
+
+// Stack Instructions
+
+// Store X Register
+
+// Store Y Register
+
 #endif // !CPU_h
